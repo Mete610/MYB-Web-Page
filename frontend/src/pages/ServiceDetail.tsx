@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { services } from '../data/servicesData';
 import '../App.css';
@@ -6,6 +6,12 @@ import '../App.css';
 function ServiceDetail() {
     const { id } = useParams<{ id: string }>();
     const service = services.find(s => s.id === id);
+    const { pathname } = useLocation();
+
+    // Scroll to top on route change
+    if (typeof window !== 'undefined') {
+        window.scrollTo(0, 0);
+    }
 
     if (!service) {
         return (
@@ -19,36 +25,69 @@ function ServiceDetail() {
     }
 
     return (
-        <motion.div
-            className="service-detail-page"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-        >
-            <motion.div
-                className="service-detail-header"
-                layoutId={`service-${service.id}`}
-            >
-                <div className="service-detail-container">
-                    <Link to="/" className="back-link">← Ana Sayfa</Link>
-                    <motion.div className="service-icon-large" layoutId={`icon-${service.id}`}>{service.icon}</motion.div>
-                    <motion.h1 className="service-title-large" layoutId={`title-${service.id}`}>{service.title}</motion.h1>
-                </div>
-            </motion.div>
+        <div className="service-detail-page professional-layout">
 
-            <motion.div
-                className="service-content-container"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-            >
-                <div className="service-description-card">
-                    <h2>Hizmet Detayları</h2>
-                    <p>{service.fullDescription}</p>
+            {/* Breadcrumb Header */}
+            <div className="pro-header">
+                <div className="pro-container">
+                    <Link to="/" className="pro-back-link">
+                        <span className="back-arrow-small">←</span> Ana Sayfaya Dön
+                    </Link>
+                    <h1 className="pro-page-title">{service.title}</h1>
+                    <div className="pro-breadcrumbs">
+                        <Link to="/">Ana Sayfa</Link>
+                        <span className="separator">/</span>
+                        <span className="current">Hizmetlerimiz</span>
+                        <span className="separator">/</span>
+                        <span className="current">{service.title}</span>
+                    </div>
                 </div>
-            </motion.div>
-        </motion.div>
+            </div>
+
+            <div className="pro-container main-content-grid">
+
+                {/* Sidebar Navigation */}
+                <aside className="pro-sidebar">
+                    <div className="sidebar-widget">
+                        <h3>Hizmetlerimiz</h3>
+                        <ul className="service-nav-list">
+                            {services.map((s) => (
+                                <li key={s.id} className={s.id === id ? 'active' : ''}>
+                                    <Link to={`/hizmet/${s.id}`}>
+                                        <span className="nav-arrow">›</span> {s.title}
+                                    </Link>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+
+
+                </aside>
+
+                {/* Main Content Area */}
+                <motion.div
+                    className="pro-content"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    key={pathname} // Re-animate on route change
+                >
+                    <div className="content-hero-icon">
+                        {service.icon}
+                    </div>
+
+                    <h2 className="content-title">{service.title}</h2>
+                    <div className="content-divider"></div>
+
+                    <div className="content-text-body">
+                        {service.fullDescription}
+                    </div>
+
+
+                </motion.div>
+
+            </div>
+        </div>
     );
 }
 

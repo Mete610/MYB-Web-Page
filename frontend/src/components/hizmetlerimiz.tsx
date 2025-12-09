@@ -12,24 +12,25 @@ function Hizmetlerimiz() {
                 <p className="services-description">Profesyonel yönetim çözümlerimizle yanınızdayız.</p>
             </div>
 
-            <div className="hex-grid">
+            <div className="services-grid">
                 {services.map((service) => (
-                    <div key={service.id} className="hex-wrapper">
-                        <Link to={`/hizmet/${service.id}`} className="hex-link">
-                            <motion.div
-                                className="hex"
-                                layoutId={`service-${service.id}`}
-                                whileHover={{ scale: 1.05 }}
-                                whileTap={{ scale: 0.95 }}
-                                transition={{ duration: 0.3 }}
-                            >
-                                <div className="hex-content">
-                                    <motion.span className="hex-icon" layoutId={`icon-${service.id}`}>{service.icon}</motion.span>
-                                    <motion.span className="hex-title" layoutId={`title-${service.id}`}>{service.title}</motion.span>
-                                </div>
-                            </motion.div>
-                        </Link>
-                    </div>
+                    <Link to={`/hizmet/${service.id}`} key={service.id} className="service-card-link">
+                        <motion.div
+                            className="service-card"
+                            layoutId={`service-${service.id}`}
+                            whileHover={{ y: -10 }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            <div className="service-card-icon-wrapper">
+                                <motion.span className="service-card-icon" layoutId={`icon-${service.id}`}>{service.icon}</motion.span>
+                            </div>
+                            <div className="service-card-content">
+                                <motion.h4 className="service-card-title" layoutId={`title-${service.id}`}>{service.title}</motion.h4>
+                                <p className="service-card-desc">{service.shortDescription}</p>
+                                <span className="service-card-arrow">Detaylar &rarr;</span>
+                            </div>
+                        </motion.div>
+                    </Link>
                 ))}
             </div>
         </div>

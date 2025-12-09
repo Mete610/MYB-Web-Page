@@ -1,5 +1,5 @@
 import '../App.css';
-import hakkimizdaResim from '../assets/hakkımızdaresim.png';
+import hakkimizdaResim from '../assets/hakkimizdaresim.png';
 
 function Hakkimizda() {
   return (
