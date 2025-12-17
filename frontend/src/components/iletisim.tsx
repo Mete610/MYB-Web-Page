@@ -2,12 +2,15 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import '../App.css';
 
-// Placeholder images - Kullanıcı buraya kendi resimlerini import edip ekleyecek
-// import project1 from '../assets/project1.jpg';
+import web1 from '../assets/web1.JPG';
+import web2 from '../assets/web2.jpeg';
+import web3 from '../assets/web3.jpeg';
+import web4 from '../assets/web4.JPG';
 const sliderImages = [
-    { id: 1, color: '#e9ecef', text: 'Proje 1 Görseli Gelecek' },
-    { id: 2, color: '#dee2e6', text: 'Proje 2 Görseli Gelecek' },
-    { id: 3, color: '#ced4da', text: 'Proje 3 Görseli Gelecek' }
+    { id: 1, color: '#e9ecef', URL: web1 },
+    { id: 2, color: '#dee2e6', URL: web2 },
+    { id: 3, color: '#ced4da', URL: web3 },
+    { id: 4, color: '#ced4da', URL: web4 },
 ];
 
 function Iletisim() {
@@ -26,23 +29,21 @@ function Iletisim() {
             <div className="contact-container">
                 <div className="contact-info">
                     <h3 className="contact-title">İletişim</h3>
-                    <div className="info-item">
-                        <span className="info-icon">📍</span>
-                        <p><strong>Adres:</strong> Örnek Mahallesi, Örnek Caddesi No:123, İstanbul</p>
-                    </div>
+
                     <div className="info-item">
                         <span className="info-icon">📞</span>
-                        <p><strong>Telefon:</strong> +90 212 123 45 67</p>
+                        <p><strong>Telefon:</strong> +90 533 714 40 46</p>
+
                     </div>
                     <div className="info-item">
                         <span className="info-icon">✉️</span>
-                        <p><strong>E-posta:</strong> info@mybyonetim.com</p>
+                        <p><strong>E-posta:</strong> mete.yazici.myb@gmail.com</p>
                     </div>
                 </div>
 
                 {/* Dynamic Content Slider (Referanslar/Projeler) */}
                 <div className="contact-slider-wrapper">
-                    <h4 className="slider-title">Çalıştığımız Yerler</h4>
+                    <h4 className="slider-title">Emlak Konut Yarışmamız ve TakeOff Start-up Sunumumuz</h4>
                     <div className="slider-container">
                         <AnimatePresence mode='wait'>
                             <motion.div
@@ -56,20 +57,12 @@ function Iletisim() {
                             >
                                 {/* Resim eklendiğinde burası <img src={...} /> olacak */}
                                 <div className="placeholder-content">
-                                    {sliderImages[currentIndex].text}
+                                    <img src={sliderImages[currentIndex].URL} alt="" />
                                 </div>
                             </motion.div>
                         </AnimatePresence>
 
-                        <div className="slider-dots">
-                            {sliderImages.map((_, idx) => (
-                                <button
-                                    key={idx}
-                                    className={`dot ${idx === currentIndex ? 'active' : ''}`}
-                                    onClick={() => setCurrentIndex(idx)}
-                                />
-                            ))}
-                        </div>
+
                     </div>
                 </div>
             </div>

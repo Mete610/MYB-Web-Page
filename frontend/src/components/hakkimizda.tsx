@@ -14,10 +14,11 @@ function Hakkimizda() {
             Evinizin İhtiyaçları için Çoklu Hizmet Sağlayan Profesyonel Yönetim Ekibi
           </h2>
           <p className="about-text">
-            20 yılı aşkın süredir profesyonel yönetim ekibimiz, 1000'i aşkın
-            konutta site sakinlerine ve kat maliklerine yardımcı olarak
-            hizmet vermekte. Çok problemli veya çözülemez bile denilen birçok
-            sorunu çözüme kavuşturuyoruz.
+            MYB olarak, şeffaf ve profesyonel yönetim anlayışıyla 3 yıl önce çıktığımız yolda, bugün 500’e yakın daireye kesintisiz hizmet vermenin gururunu yaşıyoruz.
+
+            Amacımız sadece binaları yönetmek değil, yaşam kalitesini artırmaktır. Hukuki, mali ve teknik tüm süreçleri uzman kadromuzla üstleniyor; mülkünüze değer katarken operasyonel yükü omuzlarınızdan alıyoruz.
+
+            Tecrübemiz ve çözüm odaklı yaklaşımımızla, siz evinizin keyfini sürerken biz tüm detayları yönetiyoruz.
           </p>
         </div>
       </div>
