@@ -134,45 +134,39 @@ def index():
 @app.route('/api/test-connection', methods=['GET'])
 def test_connection():
     import socket
+    import urllib.request
     results = {}
     
-    # 1. DNS Resolution Test
+    # 1. General Internet Check (HTTP/HTTPS)
+    # This proves if the server has ANY internet access
     try:
-        results["dns_resolution"] = {}
-        addr_info = socket.getaddrinfo("smtp.gmail.com", 587)
-        for family, type, proto, canonname, sockaddr in addr_info:
-            fam_str = "IPv6" if family == socket.AF_INET6 else "IPv4"
-            results["dns_resolution"][fam_str] = sockaddr[0]
+        results["http_google_check"] = "attempting..."
+        with urllib.request.urlopen('https://www.google.com', timeout=5) as response:
+            results["http_google_check"] = f"SUCCESS (Status: {response.getcode()})"
     except Exception as e:
-        results["dns_resolution"]["error"] = str(e)
+        results["http_google_check"] = f"FAILED: {str(e)}"
 
-    # 2. Socket Connect Test (Low level)
+    # 2. DNS Resolution
     try:
-        target_ip = results.get("dns_resolution", {}).get("IPv4")
-        if target_ip:
-            s = socket.create_connection((target_ip, 587), timeout=5)
-            results["socket_ipv4_587"] = "SUCCESS"
-            s.close()
-        else:
-            results["socket_ipv4_587"] = "SKIPPED (No IPv4)"
+        results["dns_resolution"] = "attempting..."
+        ip = socket.gethostbyname("smtp.gmail.com")
+        results["dns_resolution"] = f"SUCCESS ({ip})"
     except Exception as e:
-        results["socket_ipv4_587"] = f"FAILED: {str(e)}"
+        results["dns_resolution"] = f"FAILED: {str(e)}"
 
-    # 3. SMTP Test with forced IPv4 if available
+    # 3. SMTP Connectivity Test (Standard Port 587)
     try:
-        # Use the IP directly if we found one, otherwise hostname
-        host_to_use = results.get("dns_resolution", {}).get("IPv4") or SMTP_SERVER
-        results["smtp_ipv4_forced_587"] = f"attempting on {host_to_use}..."
-        
-        server = smtplib.SMTP(host_to_use, 587, timeout=10)
+        results["smtp_test_587"] = "attempting..."
+        # Increased timeout to 30s
+        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=30)
         server.starttls()
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
         server.quit()
-        results["smtp_ipv4_forced_587"] = "SUCCESS"
+        results["smtp_test_587"] = "SUCCESS"
     except Exception as e:
-        results["smtp_ipv4_forced_587"] = f"FAILED: {str(e)}"
-
-    results["original_error"] = "[Errno 101] Network is unreachable"
+        results["smtp_test_587"] = f"FAILED: {str(e)}"
+    
+    results["diagnosis"] = "If HTTP works but SMTP fails, Render is blocking email ports."
     
     return jsonify(results), 200
 
