@@ -133,30 +133,32 @@ def index():
 
 @app.route('/api/test-connection', methods=['GET'])
 def test_connection():
-    results = {
-        "smtp_server": SMTP_SERVER,
-        "smtp_port": SMTP_PORT,
-        "sender_email_set": bool(SENDER_EMAIL),
-        "sender_password_set": bool(SENDER_PASSWORD),
-        "connection_test": "pending"
-    }
+    results = {}
     
+    # Test Port 465 (SSL)
     try:
-        if SMTP_PORT == 465:
-            server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=10)
-        else:
-            server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10)
-            server.starttls()
-            
+        results["port_465_test"] = "attempting..."
+        server = smtplib.SMTP_SSL(SMTP_SERVER, 465, timeout=10)
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
         server.quit()
-        results["connection_test"] = "SUCCESS"
-        results["message"] = "SMTP connection and login successful!"
-        return jsonify(results), 200
+        results["port_465_test"] = "SUCCESS"
     except Exception as e:
-        results["connection_test"] = "FAILED"
-        results["error"] = str(e)
-        return jsonify(results), 500
+        results["port_465_test"] = f"FAILED: {str(e)}"
+
+    # Test Port 587 (STARTTLS)
+    try:
+        results["port_587_test"] = "attempting..."
+        server = smtplib.SMTP(SMTP_SERVER, 587, timeout=10)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.quit()
+        results["port_587_test"] = "SUCCESS"
+    except Exception as e:
+        results["port_587_test"] = f"FAILED: {str(e)}"
+
+    results["primary_config_port"] = SMTP_PORT
+    
+    return jsonify(results), 200
 
 if __name__ == '__main__':
     # Disable debug mode for safety if running directly, or use env var
