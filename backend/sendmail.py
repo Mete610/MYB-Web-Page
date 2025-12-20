@@ -49,6 +49,8 @@ limiter = Limiter(
     storage_uri="memory://"
 )
 
+import resend
+
 # Configuration from Environment Variables
 SMTP_SERVER = os.getenv("SMTP_SERVER", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", 587))
@@ -56,15 +58,16 @@ SENDER_EMAIL = os.getenv("SENDER_EMAIL")
 SENDER_PASSWORD = os.getenv("SENDER_PASSWORD")
 RECIPIENT_EMAIL = os.getenv("RECIPIENT_EMAIL")
 
+# Resend Configuration
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+if RESEND_API_KEY:
+    resend.api_key = RESEND_API_KEY
+
 @app.route('/api/send-quote', methods=['POST'])
 @limiter.limit("5 per minute")  # Strict limit for email sending endpoint
 def send_quote():
     current_step = "initializing"
     try:
-        # Security Check: Ensure environment variables are loaded
-        if not SENDER_EMAIL or not SENDER_PASSWORD:
-            raise ValueError("Server misconfiguration: Email credentials missing.")
-
         data = request.json or {}
         
         # Data extraction
@@ -74,7 +77,7 @@ def send_quote():
         bagimsiz_bolum = str(data.get('bagimsizBolum', '') or '')
         telefon = str(data.get('telefon', '') or '')
         
-        # Prepare Email
+        # Prepare Email Content
         subject = f"Yeni Teklif: {bina_adi}"
         body = f"""
         Bilgiler:
@@ -84,6 +87,32 @@ def send_quote():
         Bolum: {bagimsiz_bolum}
         Tel: {telefon}
         """
+
+        # METHOD 1: Use Resend if API key is available (Preferred)
+        if RESEND_API_KEY:
+            current_step = "resend_api_send"
+            # Note: 'from' must be a verified domain or 'onboarding@resend.dev'
+            # We use onboarding@resend.dev if user hasn't set a specific verified sender
+            # SENDER_EMAIL might be gmail, which Resend won't allow in 'from' field if not verified.
+            # So we use a safe default or a specific RESEND_FROM_EMAIL env var.
+            from_email = os.getenv("RESEND_FROM_EMAIL", "onboarding@resend.dev")
+            
+            params = {
+                "from": from_email,
+                "to": [RECIPIENT_EMAIL],
+                "subject": subject,
+                "text": body,
+                "reply_to": "info@myb.com.tr" # Ideally this would be the user's email if collected
+            }
+            
+            email = resend.Emails.send(params)
+            # Resend returns an object, we assume success if no error raised
+            return jsonify({"success": True, "message": "Talebiniz başarıyla alındı (Resend)!"}), 200
+
+        # METHOD 2: Fallback to SMTP
+        # Security Check: Ensure environment variables are loaded
+        if not SENDER_EMAIL or not SENDER_PASSWORD:
+            raise ValueError("Server misconfiguration: Email credentials missing.")
 
         msg = MIMEMultipart()
         msg['From'] = SENDER_EMAIL
