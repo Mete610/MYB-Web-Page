@@ -96,10 +96,14 @@ def send_quote():
         raw_bytes = msg.as_bytes()
         
         current_step = "smtp_connect"
-        server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, local_hostname='localhost')
+        timeout_val = 30 # Connection timeout in seconds
         
-        current_step = "smtp_starttls"
-        server.starttls()
+        if SMTP_PORT == 465:
+            server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=timeout_val)
+        else:
+            server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=timeout_val)
+            current_step = "smtp_starttls"
+            server.starttls()
         
         current_step = "smtp_login"
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
