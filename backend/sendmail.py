@@ -33,7 +33,12 @@ env_frontend = os.getenv("FRONTEND_URL")
 if env_frontend:
     allowed_origins.append(env_frontend)
 
-CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
+CORS(app, resources={r"/api/*": {
+    "origins": allowed_origins,
+    "methods": ["GET", "POST", "OPTIONS"],
+    "allow_headers": ["Content-Type", "Authorization"],
+    "supports_credentials": True
+}})
 
 # SECURITY: Rate Limiting
 # Limits requests to 5 per minute per IP address to prevent spam.
