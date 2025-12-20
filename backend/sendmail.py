@@ -160,43 +160,6 @@ def send_quote():
 def index():
     return "Backend is running correctly.", 200
 
-@app.route('/api/test-connection', methods=['GET'])
-def test_connection():
-    import socket
-    import urllib.request
-    results = {}
-    
-    # 1. General Internet Check (HTTP/HTTPS)
-    # This proves if the server has ANY internet access
-    try:
-        results["http_google_check"] = "attempting..."
-        with urllib.request.urlopen('https://www.google.com', timeout=5) as response:
-            results["http_google_check"] = f"SUCCESS (Status: {response.getcode()})"
-    except Exception as e:
-        results["http_google_check"] = f"FAILED: {str(e)}"
-
-    # 2. DNS Resolution
-    try:
-        results["dns_resolution"] = "attempting..."
-        ip = socket.gethostbyname("smtp.gmail.com")
-        results["dns_resolution"] = f"SUCCESS ({ip})"
-    except Exception as e:
-        results["dns_resolution"] = f"FAILED: {str(e)}"
-
-    # 3. SMTP Connectivity Test (Standard Port 587)
-    try:
-        results["smtp_test_587"] = "attempting..."
-        # Increased timeout to 30s
-        server = smtplib.SMTP("smtp.gmail.com", 587, timeout=30)
-        server.starttls()
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        server.quit()
-        results["smtp_test_587"] = "SUCCESS"
-    except Exception as e:
-        results["smtp_test_587"] = f"FAILED: {str(e)}"
-    
-    results["diagnosis"] = "If HTTP works but SMTP fails, Render is blocking email ports."
-    
     return jsonify(results), 200
 
 if __name__ == '__main__':
