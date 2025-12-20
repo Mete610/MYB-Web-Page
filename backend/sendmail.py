@@ -127,6 +127,37 @@ def send_quote():
             "error_code": current_step 
         }), 500
 
+@app.route('/', methods=['GET'])
+def index():
+    return "Backend is running correctly.", 200
+
+@app.route('/api/test-connection', methods=['GET'])
+def test_connection():
+    results = {
+        "smtp_server": SMTP_SERVER,
+        "smtp_port": SMTP_PORT,
+        "sender_email_set": bool(SENDER_EMAIL),
+        "sender_password_set": bool(SENDER_PASSWORD),
+        "connection_test": "pending"
+    }
+    
+    try:
+        if SMTP_PORT == 465:
+            server = smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT, timeout=10)
+        else:
+            server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT, timeout=10)
+            server.starttls()
+            
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.quit()
+        results["connection_test"] = "SUCCESS"
+        results["message"] = "SMTP connection and login successful!"
+        return jsonify(results), 200
+    except Exception as e:
+        results["connection_test"] = "FAILED"
+        results["error"] = str(e)
+        return jsonify(results), 500
+
 if __name__ == '__main__':
     # Disable debug mode for safety if running directly, or use env var
     debug_mode = os.getenv("FLASK_DEBUG", "False").lower() == "true"
