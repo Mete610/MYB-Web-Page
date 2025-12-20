@@ -133,30 +133,46 @@ def index():
 
 @app.route('/api/test-connection', methods=['GET'])
 def test_connection():
+    import socket
     results = {}
     
-    # Test Port 465 (SSL)
+    # 1. DNS Resolution Test
     try:
-        results["port_465_test"] = "attempting..."
-        server = smtplib.SMTP_SSL(SMTP_SERVER, 465, timeout=10)
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        server.quit()
-        results["port_465_test"] = "SUCCESS"
+        results["dns_resolution"] = {}
+        addr_info = socket.getaddrinfo("smtp.gmail.com", 587)
+        for family, type, proto, canonname, sockaddr in addr_info:
+            fam_str = "IPv6" if family == socket.AF_INET6 else "IPv4"
+            results["dns_resolution"][fam_str] = sockaddr[0]
     except Exception as e:
-        results["port_465_test"] = f"FAILED: {str(e)}"
+        results["dns_resolution"]["error"] = str(e)
 
-    # Test Port 587 (STARTTLS)
+    # 2. Socket Connect Test (Low level)
     try:
-        results["port_587_test"] = "attempting..."
-        server = smtplib.SMTP(SMTP_SERVER, 587, timeout=10)
+        target_ip = results.get("dns_resolution", {}).get("IPv4")
+        if target_ip:
+            s = socket.create_connection((target_ip, 587), timeout=5)
+            results["socket_ipv4_587"] = "SUCCESS"
+            s.close()
+        else:
+            results["socket_ipv4_587"] = "SKIPPED (No IPv4)"
+    except Exception as e:
+        results["socket_ipv4_587"] = f"FAILED: {str(e)}"
+
+    # 3. SMTP Test with forced IPv4 if available
+    try:
+        # Use the IP directly if we found one, otherwise hostname
+        host_to_use = results.get("dns_resolution", {}).get("IPv4") or SMTP_SERVER
+        results["smtp_ipv4_forced_587"] = f"attempting on {host_to_use}..."
+        
+        server = smtplib.SMTP(host_to_use, 587, timeout=10)
         server.starttls()
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
         server.quit()
-        results["port_587_test"] = "SUCCESS"
+        results["smtp_ipv4_forced_587"] = "SUCCESS"
     except Exception as e:
-        results["port_587_test"] = f"FAILED: {str(e)}"
+        results["smtp_ipv4_forced_587"] = f"FAILED: {str(e)}"
 
-    results["primary_config_port"] = SMTP_PORT
+    results["original_error"] = "[Errno 101] Network is unreachable"
     
     return jsonify(results), 200
 
