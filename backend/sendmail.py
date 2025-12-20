@@ -123,7 +123,7 @@ def send_quote():
         # But for now, we return a simple error message
         return jsonify({
             "success": False, 
-            "message": "İşlem sırasında bir hata oluştu. Lütfen daha sonra tekrar deneyin.",
+            "message": f"Hata oluştu ({current_step}): {str(e)}", # Temporary detailed error for debugging
             "error_code": current_step 
         }), 500
 
