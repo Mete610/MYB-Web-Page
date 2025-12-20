@@ -20,9 +20,20 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "default-dev-key")
 
 # SECURITY: CORS restriction
-# In production, set FRONTEND_URL to your actual domain (e.g., https://myb-yonetim.vercel.app)
-frontend_url = os.getenv("FRONTEND_URL", "*")
-CORS(app, resources={r"/api/*": {"origins": frontend_url}})
+# SECURITY: CORS restriction
+# Allow specific origins for production and development
+allowed_origins = [
+    "https://www.myb.com.tr",
+    "https://myb.com.tr",
+    "https://myb-web-page.vercel.app"
+]
+
+# Include FRONTEND_URL from env if set
+env_frontend = os.getenv("FRONTEND_URL")
+if env_frontend:
+    allowed_origins.append(env_frontend)
+
+CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 
 # SECURITY: Rate Limiting
 # Limits requests to 5 per minute per IP address to prevent spam.
