@@ -32,7 +32,7 @@ function Iletisim() {
 
                     <div className="info-item">
                         <span className="info-icon">📞</span>
-                        <p><strong>Telefon:</strong> <a href="tel:+905XXXXXXXXX"><i class="fas fa-phone"></i> +90 5XX XXX XX XX</a></p>
+                        <p><strong>Telefon:</strong> <a href="tel:+905337144046"><i class="fas fa-phone"></i> +90 5XX XXX XX XX</a></p>
 
                     </div>
                     <div className="info-item">
